@@ -40,7 +40,11 @@ def get_claude_reply(question, knowledge):
         "messages": [{"role": "user", "content": question}]
     }
     res = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=body)
-    return res.json()["content"][0]["text"]
+    data = res.json()
+    print("Claude response:", data)
+    if "content" not in data:
+        return f"AI 답변 생성 실패: {data.get('error', {}).get('message', '알 수 없는 오류')}"
+    return data["content"][0]["text"]
 
 def send_slack(name, email, company, question, reply):
     headers = {
