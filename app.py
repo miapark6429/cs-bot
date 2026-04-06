@@ -72,6 +72,17 @@ def webhook():
     refers = data.get("refers", {})
     user = refers.get("user", {})
 
+    # 유저 메시지만 처리 (봇, 관리자 제외)
+    person_type = entity.get("personType", "")
+    if person_type != "user":
+        return jsonify({"ok": True})
+
+    # 첫 번째 메시지만 처리
+    user_chat = refers.get("userChat", {})
+    message_count = user_chat.get("messageCount", 0)
+    if message_count > 1:
+        return jsonify({"ok": True})
+
     question = entity.get("plainText", "")
     name = user.get("name", "")
     email = user.get("email", "")
@@ -85,6 +96,6 @@ def webhook():
     send_slack(name, email, company, question, reply)
 
     return jsonify({"ok": True})
-
+    
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
